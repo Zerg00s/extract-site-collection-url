@@ -141,7 +141,6 @@ body {
 .sharepoint-icon {
     width: 48px;
     height: 48px;
-    filter: brightness(0) invert(1);
     animation: iconPulse 2s ease-in-out infinite;
 }
 
