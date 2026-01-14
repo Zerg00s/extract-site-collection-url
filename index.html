@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SharePoint Site Collection URL Extractor</title>
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-content">
+                <div class="header-title">
+                    <img src="img/sharepoint.svg" alt="SharePoint" class="sharepoint-icon">
+                    <div class="title-text">
+                        <h1>Site Collection URL Extractor</h1>
+                        <p class="subtitle">Paste SharePoint URLs to extract their site collection roots. Supports /sites/, /teams/, /personal/, and root sites.</p>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Input Panel -->
+            <section class="panel input-panel">
+                <div class="panel-header">
+                    <h2>Input URLs</h2>
+                    <span class="url-count" id="inputCount">0 URLs</span>
+                </div>
+                <div class="panel-body">
+                    <textarea
+                        id="urlInput"
+                        class="url-textarea"
+                        placeholder="Paste your SharePoint URLs here, one per line...
+
+Examples:
+https://contoso.sharepoint.com/sites/Marketing/Shared Documents/Report.docx
+https://contoso.sharepoint.com/teams/ProjectAlpha/Documents/
+https://contoso-my.sharepoint.com/personal/john_contoso_com/Documents/file.xlsx
+https://contoso.sharepoint.com"
+                        spellcheck="false"
+                    ></textarea>
+                    <button class="btn btn-secondary clear-btn" id="clearBtn">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                            <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+                            <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+                        </svg>
+                        Clear
+                    </button>
+                </div>
+            </section>
+
+            <!-- Output Panel -->
+            <section class="panel output-panel">
+                <!-- Progress Indicator -->
+                <div class="progress-bar" id="progressBar">
+                    <div class="progress-fill" id="progressFill"></div>
+                    <span class="progress-text" id="progressText">Processing...</span>
+                </div>
+
+                <!-- Converted URLs Section -->
+                <div class="output-section output-section-textarea">
+                    <div class="section-header">
+                        <h3>Converted URLs</h3>
+                        <div class="section-actions">
+                            <span class="count-badge" id="convertedCount" title="Total URLs">0</span>
+                            <span class="count-badge count-badge-secondary" id="uniqueInputCount" title="Unique input URLs">0</span>
+                            <button class="btn btn-icon copy-btn" id="copyConverted" title="Copy all converted URLs">
+                                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                                    <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"/>
+                                    <path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <textarea
+                        id="convertedOutput"
+                        class="url-textarea output-textarea"
+                        placeholder="Converted site collection URLs will appear here..."
+                        readonly
+                        spellcheck="false"
+                    ></textarea>
+                </div>
+
+                <!-- Unique Site Collections Section -->
+                <div class="output-section">
+                    <div class="section-header">
+                        <h3>Unique Site Collections</h3>
+                        <div class="section-actions">
+                            <span class="count-badge" id="uniqueCount">0</span>
+                            <button class="btn btn-icon copy-btn" id="copyUnique" title="Copy unique site collections">
+                                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                                    <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"/>
+                                    <path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="output-list" id="uniqueList">
+                        <div class="empty-state">
+                            <svg width="48" height="48" viewBox="0 0 48 48" fill="currentColor" opacity="0.3">
+                                <path d="M40 8H8c-2.21 0-4 1.79-4 4v24c0 2.21 1.79 4 4 4h32c2.21 0 4-1.79 4-4V12c0-2.21-1.79-4-4-4zm0 28H8V12h32v24z"/>
+                            </svg>
+                            <p>Unique site collections will appear here, sorted alphabetically</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="app-footer">
+            <div class="footer-container">
+                <div class="footer-social">
+                    <a class="footer-social-icon" href="https://github.com/Zerg00s/power-bi-backgrounds" title="Github" target="_blank" rel="noopener">
+                        <img src="img/github.png" alt="GitHub">
+                    </a>
+                    <a class="footer-social-icon" href="https://twitter.com/Zerg00s" title="Twitter" target="_blank" rel="noopener">
+                        <img src="img/twitter.png" alt="Twitter">
+                    </a>
+                    <a class="footer-social-icon" href="https://www.linkedin.com/in/molodtsovd/" title="LinkedIn" target="_blank" rel="noopener">
+                        <img src="img/LinkedIn.jpeg" alt="LinkedIn">
+                    </a>
+                    <a class="footer-social-icon" href="https://www.youtube.com/channel/UC7LORag5pdtpAFoNHJJkPKg" title="YouTube Channel" target="_blank" rel="noopener">
+                        <img src="img/youtube.jpeg" alt="YouTube">
+                    </a>
+                    <a class="footer-social-icon" href="https://spdenis.com/" title="Blog" target="_blank" rel="noopener">
+                        <img src="img/logo.webp" alt="Blog">
+                    </a>
+                </div>
+                <div class="footer-credit">
+                    By Denis Molodtsov with <span class="heart">&#10084;</span>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+            <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
+        </svg>
+        <span id="toastMessage">Copied to clipboard!</span>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
